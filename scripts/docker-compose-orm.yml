@@ -2,31 +2,42 @@ version: '2'
 
 services:
   akeneo:
-    image: carcel/akeneo:php-version
+    build:
+      context: .
+      dockerfile: Dockerfile-akeneo
     depends_on:
       - mysql
+    environment:
+      PHP_XDEBUG_ENABLED: 1
+      XDEBUG_CONFIG: remote_host=10.254.254.254
+      PHP_IDE_CONFIG: "serverName=localhost"
     ports:
       - 'akeneo_port:80'
     volumes:
       - /paths:/home/docker/pim
-      - /mnt/.composer:/home/docker/.composer
+      - /Users/Ananas/.composer:/home/docker/.composer
     working_dir: /home/docker/pim
     networks:
       - akeneo
 
   akeneo-behat:
-    image: carcel/akeneo-behat:php-version
+    build:
+      context: .
+      dockerfile: Dockerfile-akeneo-behat
     depends_on:
       - mysql-behat
       - selenium
     environment:
-      - BEHAT_TMPDIR:/home/docker/pim/app/cache/tmp
+      BEHAT_TMPDIR: /home/docker/pim/app/cache/tmp
+      PHP_XDEBUG_ENABLED: 1
+      XDEBUG_CONFIG: remote_host=10.254.254.254
+      PHP_IDE_CONFIG: "serverName=localhost_behat"
     ports:
       - 'akeneo_behat_port:80'
     volumes:
       - /paths:/home/docker/pim
-      - /mnt/.composer:/home/docker/.composer
-      - /mnt/Documents/Workspace/Akeneo/PIM/tmp_behat/screenshots:/tmp/behat/screenshots
+      - /Users/Ananas/.composer:/home/docker/.composer
+      - /Users/Ananas/Documents/Workspace/Akeneo/PIM/tmp_behat/screenshots:/tmp/behat/screenshots
     working_dir: /home/docker/pim
     networks:
       - behat

@@ -1,7 +1,10 @@
 #!/bin/bash
 
+SECONDS=0
 currentPath="$(dirname "$0")"
 cd ${currentPath}
+
+. ./etc/parameters.bash
 
 scriptPath=`pwd`
 
@@ -14,39 +17,12 @@ pimengine=""
 dockerComposePath=""
 scriptsPath="$scriptPath/scripts/"
 appFolder=""
-
-
-###### USER CONFIGURABLE PART ########
-
-#Your docker mapped path containing all your pims
-basePath="mnt/Documents/Workspace/Akeneo/PIM"
-dockerComposeFileName="docker-compose-not-commitable.yml"
-communityRepo="git@github.com:akeneo/pim-community-dev.git"
-enterpriseRepo="YOU MUST HAVE YOUR OWN"
-
-#The beggining of your path
-akeneoPort="8"
-akeneoBehatPort="9"
-seleniumPort="5"
-
-#Distinction CE / EE
-cePort="5"
-eePort="6"
-
-#Distinction ORM / ODM
-ormPort="5"
-odmPort="6"
-
-#Distinction version Port
-oneFourPort="4"
-oneFivePort="5"
-oneSixPort="6"
-masterPort="9"
-
-###### END OF USER CONFIGURABLE PART
+akeneoPort=""
+akeneoBehatPort=""
+seleniumPort=""
 
 function showUsageAndQuit {
-   echo "Usage: ./install_pim.bash (1.3|1.4|1.5|1.6|master) (ce|ee) (orm|odm) (php-5.6|php-7.0)"
+   echo "Usage: ./install_pim.bash (1.4|1.5|1.6|master) (ce|ee) (orm|odm) (php-5.6|php-7.0)"
    exit 1
 }
 
@@ -76,19 +52,43 @@ function setupMongo {
 
 function cloneRightVersion {
     if [ ${pimedition} == "ce" ]; then
-       echo "############# Clone the PIM Community"
-       git clone ${communityRepo} ${folderName}
+        if [ ! -d "pim-community-dev" ]; then
+            echo "############# Clone the PIM Community as cache"
+            git clone ${communityRepo}
+        fi
+
+        cd pim-community-dev
+        git pull
+        cd ${scriptPath}
+        cp -R pim-community-dev ${folderName}
     else
-       echo "############# Clone the PIM Enterprise"
-       git clone ${enterpriseRepo} ${folderName}
+        if [ ! -d "pim-enterprise-dev" ]; then
+            echo "############# Clone the PIM Enterprise as cache"
+            git clone ${enterpriseRepo}
+        fi
+        cd pim-enterprise-dev
+        git pull
+        cd ${scriptPath}
+        cp -R pim-enterprise-dev ${folderName}
     fi
 
     cd ${scriptPath}/${folderName}
     git checkout ${pimversion}
+    git pull
 }
 
 function setupPorts {
-     echo "############# SETUP ALL YOUR PORTS"
+    echo "############# SETUP ALL YOUR PORTS"
+
+    if [ ${pimengine} == "php-5.6" ]; then
+       akeneoPort="${akeneoPHP5Port}"
+       akeneoBehatPort="${akeneoPHP5BehatPort}"
+       seleniumPort="${seleniumPHP5Port}"
+    else
+       akeneoPort="${akeneoPHP7Port}"
+       akeneoBehatPort="${akeneoPHP7BehatPort}"
+       seleniumPort="${seleniumPHP7Port}"
+    fi
 
     if [ ${pimedition} == "ce" ]; then
         akeneoPort="${akeneoPort}${cePort}"
@@ -131,11 +131,6 @@ function setupPorts {
          akeneoBehatPort="${akeneoBehatPort}${masterPort}"
          seleniumPort="${seleniumPort}${masterPort}"
     fi
-
-    echo "############# Here is your ports : "
-    echo "############# akeneoPort: ${akeneoPort}"
-    echo "############# akeneoBehatPort: ${akeneoBehatPort}"
-    echo "############# akeneoSeleniumPort: ${seleniumPort}"
 }
 
 function processFiles {
@@ -143,14 +138,16 @@ function processFiles {
     cp ${scriptsPath}behat.yml ${appFolder}/
     cp ${scriptsPath}docker-compose-${pimstorage}.yml ${dockerComposePath}
     cp ${scriptsPath}parameters-${pimstorage}.yml ${appFolder}/app/config/parameters.yml
+    cp ${scriptsPath}parameters-${pimstorage}.yml ${appFolder}/app/config/parameters.yml.dist
     cp ${scriptsPath}parameters_test-${pimstorage}.yml ${appFolder}/app/config/parameters_test.yml
     rm ${appFolder}/web/app_dev.php
     cp ${scriptsPath}app_dev.php ${appFolder}/web/
+    cp ${scriptsPath}Dockerfile-akeneo-${pimengine} ${appFolder}/Dockerfile-akeneo
+    cp ${scriptsPath}Dockerfile-akeneo-behat-${pimengine} ${appFolder}/Dockerfile-akeneo-behat
 
     setupPorts
 
-    sedReplaceMac paths ${basePath}/${folderName} ${dockerComposePath}
-    sedReplaceMac php-version ${pimengine} ${dockerComposePath}
+    sedReplaceMac /paths ${basePath}/${folderName} ${dockerComposePath}
     sedReplaceMac akeneo_port ${akeneoPort} ${dockerComposePath}
     sedReplaceMac akeneo_behat_port ${akeneoBehatPort} ${dockerComposePath}
     sedReplaceMac akeneo_selenium_port ${seleniumPort} ${dockerComposePath}
@@ -167,17 +164,39 @@ function processInstall {
     echo "############# Wait 5 seconds"
     sleep 5
     echo "############# Install your vendors"
-    docker-compose -f ${dockerComposeFileName} exec akeneo php -d memory_limit=-1 /usr/local/bin/composer update --ignore-platform-reqs
-    echo "############# Install your application for dev usage"
-    docker-compose -f ${dockerComposeFileName} exec akeneo pim-initialize
-    echo "############# Wait 5 seconds"
-    sleep 5
+    echo "############# Use the PHP on your host because of slow issues in docker for mac"
+    if [ ${pimengine} == "php-5.6" ]; then
+        docker-compose -f ${dockerComposeFileName} exec --user root akeneo php5dismod -s cli xdebug
+        docker-compose -f ${dockerComposeFileName} exec akeneo php -d memory_limit=-1 /usr/local/bin/composer update --ignore-platform-reqs
+        docker-compose -f ${dockerComposeFileName} exec --user root akeneo php5enmod -s cli xdebug
+    else
+        docker-compose -f ${dockerComposeFileName} exec --user root akeneo phpdismod -s cli xdebug
+        docker-compose -f ${dockerComposeFileName} exec akeneo php -d memory_limit=-1 /usr/local/bin/composer update --ignore-platform-reqs
+        docker-compose -f ${dockerComposeFileName} exec --user root akeneo phpenmod -s cli xdebug
+    fi
+
     echo "############# Install your application for test usage (behat)"
     docker-compose -f ${dockerComposeFileName} exec akeneo-behat pim-initialize
-    sleep 5
+    echo "############# Wait 5 seconds"
+    sleep 15
+    echo "############# Install your application for dev usage"
+    docker-compose -f ${dockerComposeFileName} exec akeneo pim-initialize
+    sleep 30
     echo "############# Open the application"
     open http://localhost:${akeneoPort}
 }
+
+function printReport {
+    duration=$SECONDS
+    echo "PIM INSTALLATION : $(($duration / 60)) minutes and $(($duration % 60)) seconds."
+    echo "############# Here are your ports : "
+    echo "############# akeneoPort: ${akeneoPort}"
+    echo "############# akeneoBehatPort: ${akeneoBehatPort}"
+    echo "############# akeneoSeleniumPort: ${seleniumPort}"
+    cd ${appFolder}
+    docker-compose -f ${dockerComposeFileName} ps
+}
+
 
 if [ $# -lt 4 ]; then
    echo "############# Not the right number of parameters"
@@ -208,7 +227,10 @@ if [ $4 != "php-5.6" ] && [ $4 != "php-7.0" ]; then
 fi
 pimengine=$4
 
+echo "PIM INSTALLATION WILL PROCEED UNLEASH PIM POWEEEEERRRRR"
+
 buildFolderName
 cloneRightVersion
 processFiles
 processInstall
+printReport
