@@ -1,0 +1,65 @@
+version: '2'
+
+services:
+  akeneo:
+    image: carcel/akeneo:php-version
+    depends_on:
+      - mysql
+    ports:
+      - 'akeneo_port:80'
+    volumes:
+      - /paths:/home/docker/pim
+      - /mnt/.composer:/home/docker/.composer
+    working_dir: /home/docker/pim
+    networks:
+      - akeneo
+
+  akeneo-behat:
+    image: carcel/akeneo-behat:php-version
+    depends_on:
+      - mysql-behat
+      - selenium
+    environment:
+      - BEHAT_TMPDIR:/home/docker/pim/app/cache/tmp
+    ports:
+      - 'akeneo_behat_port:80'
+    volumes:
+      - /paths:/home/docker/pim
+      - /mnt/.composer:/home/docker/.composer
+      - /mnt/Documents/Workspace/Akeneo/PIM/tmp_behat/screenshots:/tmp/behat/screenshots
+    working_dir: /home/docker/pim
+    networks:
+      - behat
+
+  selenium:
+    image: selenium/standalone-firefox-debug:2.53.1-beryllium
+    ports:
+      - 'akeneo_selenium_port:5900'
+    volumes:
+      - /paths:/home/docker/pim
+    networks:
+      - behat
+
+  mysql:
+    image: mysql:5.6
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=akeneo_pim
+      - MYSQL_PASSWORD=akeneo_pim
+      - MYSQL_DATABASE=akeneo_pim
+    networks:
+      - akeneo
+
+  mysql-behat:
+    image: mysql:5.6
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=akeneo_pim
+      - MYSQL_PASSWORD=akeneo_pim
+      - MYSQL_DATABASE=akeneo_pim
+    networks:
+      - behat
+
+networks:
+  akeneo: ~
+  behat: ~
