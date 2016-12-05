@@ -1,4 +1,4 @@
-FROM carcel/akeneo:php-7.0
+FROM carcel/image_name:php-7.0
 
 USER root
 

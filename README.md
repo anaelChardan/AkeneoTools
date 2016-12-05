@@ -19,7 +19,7 @@ To make it works: (must be enhanced)
     cp -R AkeneoPimDockerAutomatedInstaller/etc ./
     cp ./etc/parameters.bash.dist ./etc/parameters.bash
     vim ./etc/parameters.bash
-    ./install_pim.bash (1.4|1.5|1.6|master) (ce|ee) (orm|odm) (php-5.6|php-7.0)
+    ./install_pim.bash (1.0|1.1|1.2|1.3|1.4|1.5|1.6|master) (ce|ee) (orm|odm) (php-5.6|php-7.0)
 ```
 
 This has been tested on MacOS Sierra only

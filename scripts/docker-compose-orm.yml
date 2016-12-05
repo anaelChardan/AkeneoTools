@@ -3,14 +3,14 @@ version: '2'
 services:
   akeneo:
     build:
-      context: .
+      context: ./docker-provisionning
       dockerfile: Dockerfile-akeneo
     depends_on:
       - mysql
     environment:
       PHP_XDEBUG_ENABLED: 1
       XDEBUG_CONFIG: remote_host=10.254.254.254
-      PHP_IDE_CONFIG: "serverName=localhost"
+      PHP_IDE_CONFIG: "serverName=phpstorm_localhost"
     ports:
       - 'akeneo_port:80'
     volumes:
@@ -22,7 +22,7 @@ services:
 
   akeneo-behat:
     build:
-      context: .
+      context: ./docker-provisionning
       dockerfile: Dockerfile-akeneo-behat
     depends_on:
       - mysql-behat
@@ -31,7 +31,7 @@ services:
       BEHAT_TMPDIR: /home/docker/pim/app/cache/tmp
       PHP_XDEBUG_ENABLED: 1
       XDEBUG_CONFIG: remote_host=10.254.254.254
-      PHP_IDE_CONFIG: "serverName=localhost_behat"
+      PHP_IDE_CONFIG: "serverName=phpstorm_localhost_behat"
     ports:
       - 'akeneo_behat_port:80'
     volumes:

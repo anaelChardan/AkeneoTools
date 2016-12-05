@@ -22,7 +22,7 @@ akeneoBehatPort=""
 seleniumPort=""
 
 function showUsageAndQuit {
-   echo "Usage: ./install_pim.bash (1.4|1.5|1.6|master) (ce|ee) (orm|odm) (php-5.6|php-7.0)"
+   echo "Usage: ./install_pim.bash (1.0|1.1|1.2|1.3|1.4|1.5|1.6|master) (ce|ee) (orm|odm) (php-5.6|php-7.0)"
    exit 1
 }
 
@@ -110,7 +110,27 @@ function setupPorts {
         seleniumPort="${seleniumPort}${odmPort}"
     fi
 
-    if [ $pimversion == "1.4" ]
+    if [ $pimversion == "1.0" ]
+    then
+         akeneoPort="${akeneoPort}${oneZeroPort}"
+         akeneoBehatPort="${akeneoBehatPort}${oneZeroPort}"
+         seleniumPort="${seleniumPort}${oneZeroPort}"
+    elif [ $pimversion == "1.1" ]
+    then
+         akeneoPort="${akeneoPort}${oneOnePort}"
+         akeneoBehatPort="${akeneoBehatPort}${oneOnePort}"
+         seleniumPort="${seleniumPort}${oneOnePort}"
+    elif [ $pimversion == "1.2" ]
+    then
+         akeneoPort="${akeneoPort}${oneTwoPort}"
+         akeneoBehatPort="${akeneoBehatPort}${oneTwoPort}"
+         seleniumPort="${seleniumPort}${oneTwoPort}"
+    elif [ $pimversion == "1.3" ]
+    then
+         akeneoPort="${akeneoPort}${oneThreePort}"
+         akeneoBehatPort="${akeneoBehatPort}${oneThreePort}"
+         seleniumPort="${seleniumPort}${oneThreePort}"
+    elif [ $pimversion == "1.4" ]
     then
          akeneoPort="${akeneoPort}${oneFourPort}"
          akeneoBehatPort="${akeneoBehatPort}${oneFourPort}"
@@ -142,15 +162,20 @@ function processFiles {
     cp ${scriptsPath}parameters_test-${pimstorage}.yml ${appFolder}/app/config/parameters_test.yml
     rm ${appFolder}/web/app_dev.php
     cp ${scriptsPath}app_dev.php ${appFolder}/web/
-    cp ${scriptsPath}Dockerfile-akeneo-${pimengine} ${appFolder}/Dockerfile-akeneo
-    cp ${scriptsPath}Dockerfile-akeneo-behat-${pimengine} ${appFolder}/Dockerfile-akeneo-behat
+    mkdir -p ${appFolder}/docker-provisionning
+    cp ${scriptsPath}Dockerfile-akeneo-${pimengine} ${appFolder}/docker-provisionning/Dockerfile-akeneo
+    cp ${scriptsPath}Dockerfile-akeneo-${pimengine} ${appFolder}/docker-provisionning/Dockerfile-akeneo-behat
 
     setupPorts
 
+    sedReplaceMac image_name akeneo ${appFolder}/docker-provisionning/Dockerfile-akeneo
+    sedReplaceMac image_name akeneo-behat ${appFolder}/docker-provisionning/Dockerfile-akeneo-behat
     sedReplaceMac /paths ${basePath}/${folderName} ${dockerComposePath}
     sedReplaceMac akeneo_port ${akeneoPort} ${dockerComposePath}
     sedReplaceMac akeneo_behat_port ${akeneoBehatPort} ${dockerComposePath}
     sedReplaceMac akeneo_selenium_port ${seleniumPort} ${dockerComposePath}
+    sedReplaceMac phpstorm_localhost localhost_${folderName} ${dockerComposePath}
+    sedReplaceMac phpstorm_localhost_behat localhost_behat_${folderName} ${dockerComposePath}
 
     if [ ${pimstorage} == "odm" ]; then
         setupMongo ${appFolder}/app/AppKernel.php
@@ -167,11 +192,11 @@ function processInstall {
     echo "############# Use the PHP on your host because of slow issues in docker for mac"
     if [ ${pimengine} == "php-5.6" ]; then
         docker-compose -f ${dockerComposeFileName} exec --user root akeneo php5dismod -s cli xdebug
-        docker-compose -f ${dockerComposeFileName} exec akeneo php -d memory_limit=-1 /usr/local/bin/composer update --ignore-platform-reqs
+        docker-compose -f ${dockerComposeFileName} exec akeneo php -d memory_limit=-1 /usr/local/bin/composer update --ignore-platform-reqs --optimize-autoloader --prefer-dist
         docker-compose -f ${dockerComposeFileName} exec --user root akeneo php5enmod -s cli xdebug
     else
         docker-compose -f ${dockerComposeFileName} exec --user root akeneo phpdismod -s cli xdebug
-        docker-compose -f ${dockerComposeFileName} exec akeneo php -d memory_limit=-1 /usr/local/bin/composer update --ignore-platform-reqs
+        docker-compose -f ${dockerComposeFileName} exec akeneo php -d memory_limit=-1 /usr/local/bin/composer update --ignore-platform-reqs --optimize-autoloader --prefer-dist
         docker-compose -f ${dockerComposeFileName} exec --user root akeneo phpenmod -s cli xdebug
     fi
 
@@ -203,7 +228,7 @@ if [ $# -lt 4 ]; then
    showUsageAndQuit
 fi
 
-if [ $1 != "1.4" ] && [ $1 != "1.5" ] && [ $1 != "1.6" ] && [ $1 != "master" ]; then
+if [ $1 != "1.0" ] && [ $1 != "1.1" ] && [ $1 != "1.2" ] && [ $1 != "1.3" ] && [ $1 != "1.4" ] && [ $1 != "1.5" ] && [ $1 != "1.6" ] && [ $1 != "master" ]; then
      echo "############# Not supported version"
      showUsageAndQuit
 fi
