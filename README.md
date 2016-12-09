@@ -14,11 +14,10 @@ To make it works: (must be enhanced)
 
 ```bash
     git clone https://github.com/anaelChardan/AkeneoPimDockerAutomatedInstaller.git
-    cp AkeneoPimDockerAutomatedInstaller/install_pim.bash ./
-    cp -R AkeneoPimDockerAutomatedInstaller/scripts ./
-    cp -R AkeneoPimDockerAutomatedInstaller/etc ./
-    cp ./etc/parameters.bash.dist ./etc/parameters.bash
-    vim ./etc/parameters.bash
+    ln -s AkeneoPimDockerAutomatedInstaller/pim-installer/install_pim.bash ./
+    ln -s AkeneoPimDockerAutomatedInstaller/pim-installer/files ./
+    cp AkeneoPimDockerAutomatedInstaller/pim-installer/files/etc/parameters.bash.dist ./files/etc/parameters.bash
+    vim ./files/etc/parameters.bash
     ./install_pim.bash (1.4|1.5|1.6|master) (ce|ee) (orm|odm) (php-5.6|php-7.0)
 ```
 
@@ -68,6 +67,7 @@ In your mac you have an apache by default, so you can use vhost to redirect all 
 You can use this [tutorial](https://jason.pureconcepts.net/2014/11/configure-apache-virtualhost-mac-os-x/) and use a 
 the pim-conf available in the etc folder which give you all vhosts available by this tool if you use the same config as the dist.
 
+==============================================================
 
 Now you can develop as you want and debug as you want, enjoy :smirk_cat:
 
