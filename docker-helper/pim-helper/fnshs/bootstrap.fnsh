@@ -1,0 +1,16 @@
+. $(dirname $0)/styles.fnsh
+. $(dirname $0)/docker.fnsh
+. $(dirname $0)/project.fnsh
+
+welcomeMessage
+
+DOCKER_BETA=0
+
+if [[ `uname` =~ Darwin ]];
+then
+    . $(dirname $0)/env/osx-beta.fnsh
+else
+    echoInfo "I have not tested on linux, you can contribute :)"
+fi
+
+f_check_docker_env

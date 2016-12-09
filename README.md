@@ -19,7 +19,7 @@ To make it works: (must be enhanced)
     cp -R AkeneoPimDockerAutomatedInstaller/etc ./
     cp ./etc/parameters.bash.dist ./etc/parameters.bash
     vim ./etc/parameters.bash
-    ./install_pim.bash (1.0|1.1|1.2|1.3|1.4|1.5|1.6|master) (ce|ee) (orm|odm) (php-5.6|php-7.0)
+    ./install_pim.bash (1.4|1.5|1.6|master) (ce|ee) (orm|odm) (php-5.6|php-7.0)
 ```
 
 This has been tested on MacOS Sierra only
@@ -61,7 +61,16 @@ And for behat
 
 ![PHPStorm LOCALHOST_BEHAT](/assets/server_localhost_behat.png)
 
+## Bored about use a port into your browser ?
+
+In your mac you have an apache by default, so you can use vhost to redirect all your pims
+
+You can use this [tutorial](https://jason.pureconcepts.net/2014/11/configure-apache-virtualhost-mac-os-x/) and use a 
+the pim-conf available in the etc folder which give you all vhosts available by this tool if you use the same config as the dist.
+
+
 Now you can develop as you want and debug as you want, enjoy :smirk_cat:
 
-Developed with :heart: by Anaël (Proud Akeneo developer)
+Developed with :heart: by Anaël (Proud Akeneo Core Developer)
+
 

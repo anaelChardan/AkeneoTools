@@ -3,32 +3,34 @@
 SECONDS=0
 currentPath="$(dirname "$0")"
 cd ${currentPath}
+currentAbsolutePath=`pwd`
 
-. ./etc/parameters.bash
+. ${currentAbsolutePath}/files/config/installer/parameters.bash
 
-scriptPath=`pwd`
+dockerFilesPath="${currentAbsolutePath}/files/config/docker/"
+pimFilesPath="${currentAbsolutePath}/files/config/pim/"
 
+
+####### WILL BE UPDATED
 folderName=""
-
 pimversion=""
 pimedition=""
 pimstorage=""
 pimengine=""
 dockerComposePath=""
-scriptsPath="$scriptPath/scripts/"
 appFolder=""
 akeneoPort=""
 akeneoBehatPort=""
 seleniumPort=""
 
 function showUsageAndQuit {
-   echo "Usage: ./install_pim.bash (1.0|1.1|1.2|1.3|1.4|1.5|1.6|master) (ce|ee) (orm|odm) (php-5.6|php-7.0)"
+   echo "Usage: ./install_pim.bash (1.4|1.5|1.6|master) (ce|ee) (orm|odm) (php-5.6|php-7.0)"
    exit 1
 }
 
 function buildFolderName {
     folderName="${pimversion}_${pimedition}_${pimstorage}_${pimengine}"
-    appFolder=${scriptPath}/${folderName}
+    appFolder=${currentAbsolutePath}/${folderName}
     dockerComposePath="$appFolder/$dockerComposeFileName"
 }
 
@@ -59,7 +61,7 @@ function cloneRightVersion {
 
         cd pim-community-dev
         git pull
-        cd ${scriptPath}
+        cd ${currentAbsolutePath}
         cp -R pim-community-dev ${folderName}
     else
         if [ ! -d "pim-enterprise-dev" ]; then
@@ -68,11 +70,11 @@ function cloneRightVersion {
         fi
         cd pim-enterprise-dev
         git pull
-        cd ${scriptPath}
+        cd ${currentAbsolutePath}
         cp -R pim-enterprise-dev ${folderName}
     fi
 
-    cd ${scriptPath}/${folderName}
+    cd ${currentAbsolutePath}/${folderName}
     git checkout ${pimversion}
     git pull
 }
@@ -110,27 +112,7 @@ function setupPorts {
         seleniumPort="${seleniumPort}${odmPort}"
     fi
 
-    if [ $pimversion == "1.0" ]
-    then
-         akeneoPort="${akeneoPort}${oneZeroPort}"
-         akeneoBehatPort="${akeneoBehatPort}${oneZeroPort}"
-         seleniumPort="${seleniumPort}${oneZeroPort}"
-    elif [ $pimversion == "1.1" ]
-    then
-         akeneoPort="${akeneoPort}${oneOnePort}"
-         akeneoBehatPort="${akeneoBehatPort}${oneOnePort}"
-         seleniumPort="${seleniumPort}${oneOnePort}"
-    elif [ $pimversion == "1.2" ]
-    then
-         akeneoPort="${akeneoPort}${oneTwoPort}"
-         akeneoBehatPort="${akeneoBehatPort}${oneTwoPort}"
-         seleniumPort="${seleniumPort}${oneTwoPort}"
-    elif [ $pimversion == "1.3" ]
-    then
-         akeneoPort="${akeneoPort}${oneThreePort}"
-         akeneoBehatPort="${akeneoBehatPort}${oneThreePort}"
-         seleniumPort="${seleniumPort}${oneThreePort}"
-    elif [ $pimversion == "1.4" ]
+    if [ $pimversion == "1.4" ]
     then
          akeneoPort="${akeneoPort}${oneFourPort}"
          akeneoBehatPort="${akeneoBehatPort}${oneFourPort}"
@@ -155,22 +137,27 @@ function setupPorts {
 
 function processFiles {
     echo "############# Copy configuration files"
-    cp ${scriptsPath}behat.yml ${appFolder}/
-    cp ${scriptsPath}docker-compose-${pimstorage}.yml ${dockerComposePath}
-    cp ${scriptsPath}parameters-${pimstorage}.yml ${appFolder}/app/config/parameters.yml
-    cp ${scriptsPath}parameters-${pimstorage}.yml ${appFolder}/app/config/parameters.yml.dist
-    cp ${scriptsPath}parameters_test-${pimstorage}.yml ${appFolder}/app/config/parameters_test.yml
+
+    cp ${pimFilesPath}behat.yml ${appFolder}/
+    cp ${pimFilesPath}parameters-${pimstorage}.yml ${appFolder}/app/config/parameters.yml
+    cp ${pimFilesPath}parameters-${pimstorage}.yml ${appFolder}/app/config/parameters.yml.dist
+    cp ${pimFilesPath}parameters_test-${pimstorage}.yml ${appFolder}/app/config/parameters_test.yml
+
     rm ${appFolder}/web/app_dev.php
-    cp ${scriptsPath}app_dev.php ${appFolder}/web/
+    cp ${pimFilesPath}app_dev.php ${appFolder}/web/
+
     mkdir -p ${appFolder}/docker-provisionning
-    cp ${scriptsPath}Dockerfile-akeneo-${pimengine} ${appFolder}/docker-provisionning/Dockerfile-akeneo
-    cp ${scriptsPath}Dockerfile-akeneo-${pimengine} ${appFolder}/docker-provisionning/Dockerfile-akeneo-behat
+
+    cp ${dockerFilesPath}docker-compose-${pimstorage}.yml ${dockerComposePath}
+    cp ${dockerFilesPath}Dockerfile-akeneo-${pimengine} ${appFolder}/docker-provisionning/Dockerfile-akeneo
+    cp ${dockerFilesPath}Dockerfile-akeneo-${pimengine} ${appFolder}/docker-provisionning/Dockerfile-akeneo-behat
 
     setupPorts
 
+    sedReplaceMac /paths ${pimsPath}/${folderName} ${dockerComposePath}
+
     sedReplaceMac image_name akeneo ${appFolder}/docker-provisionning/Dockerfile-akeneo
     sedReplaceMac image_name akeneo-behat ${appFolder}/docker-provisionning/Dockerfile-akeneo-behat
-    sedReplaceMac /paths ${basePath}/${folderName} ${dockerComposePath}
     sedReplaceMac akeneo_port ${akeneoPort} ${dockerComposePath}
     sedReplaceMac akeneo_behat_port ${akeneoBehatPort} ${dockerComposePath}
     sedReplaceMac akeneo_selenium_port ${seleniumPort} ${dockerComposePath}
@@ -228,7 +215,7 @@ if [ $# -lt 4 ]; then
    showUsageAndQuit
 fi
 
-if [ $1 != "1.0" ] && [ $1 != "1.1" ] && [ $1 != "1.2" ] && [ $1 != "1.3" ] && [ $1 != "1.4" ] && [ $1 != "1.5" ] && [ $1 != "1.6" ] && [ $1 != "master" ]; then
+if [ $1 != "1.4" ] && [ $1 != "1.5" ] && [ $1 != "1.6" ] && [ $1 != "master" ]; then
      echo "############# Not supported version"
      showUsageAndQuit
 fi

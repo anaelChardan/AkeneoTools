@@ -7,11 +7,11 @@ services:
       dockerfile: Dockerfile-akeneo
     depends_on:
       - mysql
-      - mongodb
     environment:
       PHP_XDEBUG_ENABLED: 1
       XDEBUG_CONFIG: remote_host=10.254.254.254
       PHP_IDE_CONFIG: "serverName=phpstorm_localhost"
+      PHP_XDEBUG_IDEKEY: PHPSTORM
     ports:
       - 'akeneo_port:80'
     volumes:
@@ -27,7 +27,6 @@ services:
       dockerfile: Dockerfile-akeneo-behat
     depends_on:
       - mysql-behat
-      - mongodb-behat
       - selenium
     environment:
       BEHAT_TMPDIR: /home/docker/pim/app/cache/tmp
@@ -70,16 +69,6 @@ services:
       - MYSQL_USER=akeneo_pim
       - MYSQL_PASSWORD=akeneo_pim
       - MYSQL_DATABASE=akeneo_pim
-    networks:
-      - behat
-
-  mongodb:
-    image: mongo:2.6
-    networks:
-      - akeneo
-
-  mongodb-behat:
-    image: mongo:2.6
     networks:
       - behat
 
