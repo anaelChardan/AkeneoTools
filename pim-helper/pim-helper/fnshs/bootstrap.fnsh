@@ -1,6 +1,8 @@
-. $(dirname $0)/styles.fnsh
-. $(dirname $0)/docker.fnsh
-. $(dirname $0)/project.fnsh
+currentDir=$(dirname $0)/fnshs
+
+. ${currentDir}/styles.fnsh
+. ${currentDir}/docker.fnsh
+. ${currentDir}/project.fnsh
 
 welcomeMessage
 
@@ -8,7 +10,7 @@ DOCKER_BETA=0
 
 if [[ `uname` =~ Darwin ]];
 then
-    . $(dirname $0)/env/osx-beta.fnsh
+    . ${currentDir}/../env/mac.fnsh
 else
     echoInfo "I have not tested on linux, you can contribute :)"
 fi

@@ -2,9 +2,7 @@ version: '2'
 
 services:
   akeneo:
-    build:
-      context: ./docker-provisionning
-      dockerfile: Dockerfile-akeneo
+    image: carcel/akeneo:php-5.6
     depends_on:
       - mysql
       - mongodb
@@ -12,6 +10,9 @@ services:
       PHP_XDEBUG_ENABLED: 1
       XDEBUG_CONFIG: remote_host=10.254.254.254
       PHP_IDE_CONFIG: "serverName=phpstorm_localhost"
+      PHP_XDEBUG_DEFAULT_ENABLE: 0
+      PHP_XDEBUG_IDE_KEY: PHPSTORM
+      PHP_XDEBUG_REMOTE_HOST: 10.254.254.254
     ports:
       - 'akeneo_port:80'
     volumes:
@@ -22,9 +23,7 @@ services:
       - akeneo
 
   akeneo-behat:
-    build:
-      context: ./docker-provisionning
-      dockerfile: Dockerfile-akeneo-behat
+    image: carcel/akeneo-behat:php-5.6
     depends_on:
       - mysql-behat
       - mongodb-behat
@@ -34,6 +33,9 @@ services:
       PHP_XDEBUG_ENABLED: 1
       XDEBUG_CONFIG: remote_host=10.254.254.254
       PHP_IDE_CONFIG: "serverName=phpstorm_localhost_behat"
+      PHP_XDEBUG_DEFAULT_ENABLE: 0
+      PHP_XDEBUG_IDE_KEY: PHPSTORM
+      PHP_XDEBUG_REMOTE_HOST: 10.254.254.254
     ports:
       - 'akeneo_behat_port:80'
     volumes:
@@ -60,6 +62,8 @@ services:
       - MYSQL_USER=akeneo_pim
       - MYSQL_PASSWORD=akeneo_pim
       - MYSQL_DATABASE=akeneo_pim
+    ports:
+      - 'mysql_port:3306'
     networks:
       - akeneo
 
@@ -70,6 +74,8 @@ services:
       - MYSQL_USER=akeneo_pim
       - MYSQL_PASSWORD=akeneo_pim
       - MYSQL_DATABASE=akeneo_pim
+    ports:
+      - 'mysql_behat_port:3306'
     networks:
       - behat
 

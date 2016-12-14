@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ ! -f  $(dirname $0)/Docker.conf ]; then
+if [ ! -f $(dirname $0)/Docker.conf ]; then
     echoError "You should create a Docker.conf configuration file for your local environment"
 else
     . $(dirname $0)/Docker.conf
@@ -12,11 +12,8 @@ f_help ()
 {
     echo ""
     echoTitle "Usage: ./dk [arg]"
-    echoInfo "Your docker machine is: ${LYELLOW}$DOCKER_MACHINE_HOST${RESTORE}"
-    echoInfo "Boot"                    "Boot your cluster"
-    echoInfo
-    echoHelp "clean"                   "Remove the containers."
-    echoHelp "cleanv"                  "Remove the containers and the volumes."
+    echoHelp "Boot"                    "Boot your cluster"
+    echoHelp "Stop"                    "Shut down your cluster by removing containers and volumes (without database)"
     echoHelp "create"                  "Create the services and install the project from DUMP."
     echoHelp "start"                   "Start the existing services."
     echoHelp "up"                      "Create, start the services."
@@ -30,13 +27,6 @@ f_help ()
     echoHelp "scrun"                   "Run a Script Command as www-data in a container (default:${YELLOW}$ENGINE_CONTAINER${RESTORE})."
     echoHelp "install"                 "Re-Run the whole project install into ${YELLOW}$ENGINE_CONTAINER${RESTORE}."
     echoHelp "install-dump"            "Re-Run the whole project install into ${YELLOW}$ENGINE_CONTAINER${RESTORE} from SQL Dump."
-    echoHelp "release-dev"             "Run the release script in ${YELLOW}$ENGINE_CONTAINER${RESTORE} (env=dev)."
-    echoHelp "release-prod"            "Run the release script in ${YELLOW}$ENGINE_CONTAINER${RESTORE} (env=prod)."
-    echoHelp "nppm"                    "Run nppm in ${YELLOW}$ENGINE_CONTAINER${RESTORE}."
-    echoHelp "update"                  "Run the update script in ${YELLOW}$ENGINE_CONTAINER${RESTORE}."
-    echoHelp "resetdb"                 "Run the resetdb script in ${YELLOW}$ENGINE_CONTAINER${RESTORE}."
-    echoHelp "resetdb-dump"            "Run the resetdb script in ${YELLOW}$ENGINE_CONTAINER${RESTORE} from SQL Dump."
-    echoHelp "resetdb-remote-dump"     "Run the resetdb script in ${YELLOW}$ENGINE_CONTAINER${RESTORE} from Remote SQL Dump."
     echoHelp "codechecker"             "Run the codechecker script in ${YELLOW}$ENGINE_CONTAINER${RESTORE}."
     echoHelp "runtests"                "Run the runtests script in ${YELLOW}$ENGINE_CONTAINER${RESTORE}."
     echoHelp "create-dump"             "Dump the database & storage to push a new database model in ${YELLOW}$ENGINE_CONTAINER${RESTORE}."
@@ -45,7 +35,7 @@ f_help ()
 case "$1" in
     'boot')
       echoTitle "Wake up your PIM."
-      docker_compose $DOCKER_COMPOSE_FILE_NAME up -d
+      docker_compose ${DOCKER_COMPOSE_FILE_NAME} up -d
     ;;
     'init')
     ;;

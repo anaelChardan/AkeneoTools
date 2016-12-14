@@ -1,9 +1,3 @@
-if [ ! -f $PROJECT_DIR/Docker.conf ]; then
-    echoError "You should create a Docker.conf configuration file for your local environment"
-else
-    . $PROJECT_DIR/Docker.conf
-fi
-
 docker_compose()
 {
     docker-compose -f $@

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+currentDirHelper=$(dirname $0)/env
+
 f_install_docker ()
 {
     echoTitle "Docker Beta must be installed manually."
@@ -8,8 +10,8 @@ f_install_docker ()
 f_boot_docker ()
 {
     if ! $(docker info > /dev/null 2>&1); then
-      echoInfo "[d4m-nfs] Opening Docker for Mac with the NFS Mountage(D4M)."
-      bash mac/d4m-nfs/d4m-nfs.sh
+      echoInfo "[d4m-nfs] Opening Docker for Mac with the NFS Mountage (D4M)."
+      bash $(currentDirHelper)/mac/d4m-nfs/d4m-nfs.sh
     fi
     echoTitle "Docker Beta must be launched manually."
 }

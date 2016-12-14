@@ -1,2 +1,3 @@
 etc/parameters.bash
-pim-helper/pim-helper/env/mac/d4m-nfs/etc/d4m-nfs-mounts.txt
+pim-installer/pim-helper/env/mac/d4m-nfs/etc/d4m-nfs-mounts.txt
+Docker.conf

@@ -25,13 +25,7 @@ ormPort="5"
 odmPort="6"
 
 #Distinction version Port
-oneZeroPort="0"
-oneOnePort="1"
-oneTwoPort="2"
-oneThreePort="3"
 oneFourPort="4"
 oneFivePort="5"
 oneSixPort="6"
 masterPort="9"
-
-

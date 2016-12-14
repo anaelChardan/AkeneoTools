@@ -146,18 +146,12 @@ function processFiles {
     rm ${appFolder}/web/app_dev.php
     cp ${pimFilesPath}app_dev.php ${appFolder}/web/
 
-    mkdir -p ${appFolder}/docker-provisionning
-
     cp ${dockerFilesPath}docker-compose-${pimstorage}.yml ${dockerComposePath}
-    cp ${dockerFilesPath}Dockerfile-akeneo-${pimengine} ${appFolder}/docker-provisionning/Dockerfile-akeneo
-    cp ${dockerFilesPath}Dockerfile-akeneo-${pimengine} ${appFolder}/docker-provisionning/Dockerfile-akeneo-behat
 
     setupPorts
 
     sedReplaceMac /paths ${pimsPath}/${folderName} ${dockerComposePath}
 
-    sedReplaceMac image_name akeneo ${appFolder}/docker-provisionning/Dockerfile-akeneo
-    sedReplaceMac image_name akeneo-behat ${appFolder}/docker-provisionning/Dockerfile-akeneo-behat
     sedReplaceMac akeneo_port ${akeneoPort} ${dockerComposePath}
     sedReplaceMac akeneo_behat_port ${akeneoBehatPort} ${dockerComposePath}
     sedReplaceMac akeneo_selenium_port ${seleniumPort} ${dockerComposePath}
@@ -176,16 +170,14 @@ function processInstall {
     echo "############# Wait 5 seconds"
     sleep 5
     echo "############# Install your vendors"
-    echo "############# Use the PHP on your host because of slow issues in docker for mac"
+
     if [ ${pimengine} == "php-5.6" ]; then
         docker-compose -f ${dockerComposeFileName} exec --user root akeneo php5dismod -s cli xdebug
-        docker-compose -f ${dockerComposeFileName} exec akeneo php -d memory_limit=-1 /usr/local/bin/composer update --ignore-platform-reqs --optimize-autoloader --prefer-dist
-        docker-compose -f ${dockerComposeFileName} exec --user root akeneo php5enmod -s cli xdebug
     else
         docker-compose -f ${dockerComposeFileName} exec --user root akeneo phpdismod -s cli xdebug
-        docker-compose -f ${dockerComposeFileName} exec akeneo php -d memory_limit=-1 /usr/local/bin/composer update --ignore-platform-reqs --optimize-autoloader --prefer-dist
-        docker-compose -f ${dockerComposeFileName} exec --user root akeneo phpenmod -s cli xdebug
     fi
+
+    docker-compose -f ${dockerComposeFileName} exec akeneo php -d memory_limit=-1 /usr/local/bin/composer update --ignore-platform-reqs --optimize-autoloader --prefer-dist
 
     echo "############# Install your application for test usage (behat)"
     docker-compose -f ${dockerComposeFileName} exec akeneo-behat pim-initialize
@@ -194,6 +186,13 @@ function processInstall {
     echo "############# Install your application for dev usage"
     docker-compose -f ${dockerComposeFileName} exec akeneo pim-initialize
     sleep 30
+
+    if [ ${pimengine} == "php-5.6" ]; then
+        docker-compose -f ${dockerComposeFileName} exec --user root akeneo php5enmod -s cli xdebug
+    else
+        docker-compose -f ${dockerComposeFileName} exec --user root akeneo phpenmod -s cli xdebug
+    fi
+
     echo "############# Open the application"
     open http://localhost:${akeneoPort}
 }

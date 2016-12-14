@@ -22,8 +22,8 @@ BOLD=$(echo -en '\033[1m')
 welcomeMessage ()
 {
     echo "*******************************************"
-    echo "*               ${BOLD}PIM Docker Helper${RESTORE}             * "
-    echo "*                               ${CYAN}by Ananas{RESTORE}      *"
+    echo "*         ${BOLD}Akeneo PIM Docker Helper${RESTORE}        * "
+    echo "*                           ${CYAN}by Ananas${RESTORE}     *"
     echo "*******************************************"
 }
 
