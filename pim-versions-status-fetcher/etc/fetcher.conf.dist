@@ -1,0 +1,9 @@
+pathToYourPimsRepo="/Users/Ananas/Documents/Workspace/Akeneo/pim-versions-status-fetcher"
+nameOfYourCeVersion="pim-ce"
+nameOfYourEeVersion="pim-ee"
+gitRepoCe="git@github.com:akeneo/pim-community-dev.git"
+gitRepoEe="ADD_YOUR_OWN"
+
+last14Tag="v1.4.28"
+last15Tag="v1.5.15"
+last16Tag="v1.6.6"
