@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Files and Project
-pimsPath="/Users/Ananas/Documents/Workspace/Akeneo/PIM"
+pimsPath="/Workspace/Akeneo/PIM"
 dockerComposeFileName="docker-compose-not-commitable.yml"
 
 #Github
