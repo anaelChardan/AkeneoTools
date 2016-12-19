@@ -22,9 +22,10 @@ appFolder=""
 akeneoPort=""
 akeneoBehatPort=""
 seleniumPort=""
+ceBranch=""
 
 function showUsageAndQuit {
-   echo "Usage: ./install_pim.bash (1.4|1.5|1.6|master) (ce|ee) (orm|odm) (php-5.6|php-7.0)"
+   echo "Usage: ./install_pim.bash (1.4|1.5|1.6|master) (ce|ee) (orm|odm) (php-5.6|php-7.0) (ce-branch for ee)"
    exit 1
 }
 
@@ -44,6 +45,14 @@ function sedReplaceMac {
   mv $temp $targetFile
 }
 
+function setupComposerJson {
+  local targetFile=$1
+  local temp=`mktemp -t sed_replace.XXXXXXXXX`
+  chmod ug+rw ${temp}
+  sed -E 's#\"akeneo\/pim-community-dev\":.*#\"akeneo/pim-community-dev\": \"dev-'${ceBranch}'@dev\",#g' ${targetFile} > ${temp}
+  mv ${temp} ${targetFile}
+}
+
 function setupMongo {
   local targetFile=$1
   local temp=`mktemp -t sed_replace.XXXXXXXXX`
@@ -61,6 +70,7 @@ function cloneRightVersion {
 
         cd pim-community-dev
         git pull
+        git fetch --prune
         cd ${currentAbsolutePath}
         cp -R pim-community-dev ${folderName}
     else
@@ -70,6 +80,7 @@ function cloneRightVersion {
         fi
         cd pim-enterprise-dev
         git pull
+        git fetch --prune
         cd ${currentAbsolutePath}
         cp -R pim-enterprise-dev ${folderName}
     fi
@@ -158,6 +169,10 @@ function processFiles {
     sedReplaceMac phpstorm_localhost localhost_${folderName} ${dockerComposePath}
     sedReplaceMac phpstorm_localhost_behat localhost_behat_${folderName} ${dockerComposePath}
 
+    if [ ${pimedition} == "ee" ]; then
+        sedReplaceMac PimInstallerBundle:minimal PimEnterpriseInstallerBundle:minimal ${appFolder}/app/config/parameters_test.yml
+    fi
+
     if [ ${pimstorage} == "odm" ]; then
         setupMongo ${appFolder}/app/AppKernel.php
     fi
@@ -165,17 +180,16 @@ function processFiles {
 
 function processInstall {
     cd ${appFolder}
+    if [ ! -z "${ceBranch}" ]; then
+        echo "You choose ${ceBranch} as CE Branch"
+        setupComposerJson composer.json
+    fi
+
     echo "############# Construct your application using docker"
     docker-compose -f ${dockerComposeFileName} up -d --build
     echo "############# Wait 5 seconds"
     sleep 5
     echo "############# Install your vendors"
-
-    if [ ${pimengine} == "php-5.6" ]; then
-        docker-compose -f ${dockerComposeFileName} exec --user root akeneo php5dismod -s cli xdebug
-    else
-        docker-compose -f ${dockerComposeFileName} exec --user root akeneo phpdismod -s cli xdebug
-    fi
 
     docker-compose -f ${dockerComposeFileName} exec akeneo php -d memory_limit=-1 /usr/local/bin/composer update --ignore-platform-reqs --optimize-autoloader --prefer-dist
 
@@ -186,12 +200,6 @@ function processInstall {
     echo "############# Install your application for dev usage"
     docker-compose -f ${dockerComposeFileName} exec akeneo pim-initialize
     sleep 30
-
-    if [ ${pimengine} == "php-5.6" ]; then
-        docker-compose -f ${dockerComposeFileName} exec --user root akeneo php5enmod -s cli xdebug
-    else
-        docker-compose -f ${dockerComposeFileName} exec --user root akeneo phpenmod -s cli xdebug
-    fi
 
     echo "############# Open the application"
     open http://localhost:${akeneoPort}
@@ -206,6 +214,9 @@ function printReport {
     echo "############# akeneoSeleniumPort: ${seleniumPort}"
     cd ${appFolder}
     docker-compose -f ${dockerComposeFileName} ps
+    if [[ `uname` =~ Darwin ]]; then
+        osascript -e 'display notification "Installation PIM '${appFolder}' finished" with title "PIM INSTALLER"'
+    fi
 }
 
 
@@ -237,6 +248,10 @@ if [ $4 != "php-5.6" ] && [ $4 != "php-7.0" ]; then
      showUsageAndQuit
 fi
 pimengine=$4
+
+if [ ! -z "$5" ]; then
+    ceBranch=$5
+fi
 
 echo "PIM INSTALLATION WILL PROCEED UNLEASH PIM POWEEEEERRRRR"
 

@@ -14,8 +14,8 @@ seleniumPHP5Port="4"
 seleniumPHP7Port="5"
 
 #Distinction CE / EE
-cePort="5"
-eePort="6"
+cePort="7"
+eePort="8"
 
 #Distinction ORM / ODM
 ormPort="5"

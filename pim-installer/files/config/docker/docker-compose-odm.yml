@@ -7,10 +7,9 @@ services:
       - mysql
       - mongodb
     environment:
-      PHP_XDEBUG_ENABLED: 1
+      PHP_XDEBUG_ENABLED: 0
       XDEBUG_CONFIG: remote_host=10.254.254.254
       PHP_IDE_CONFIG: "serverName=phpstorm_localhost"
-      PHP_XDEBUG_DEFAULT_ENABLE: 0
       PHP_XDEBUG_IDE_KEY: PHPSTORM
       PHP_XDEBUG_REMOTE_HOST: 10.254.254.254
     ports:
@@ -30,10 +29,9 @@ services:
       - selenium
     environment:
       BEHAT_TMPDIR: /home/docker/pim/app/cache/tmp
-      PHP_XDEBUG_ENABLED: 1
+      PHP_XDEBUG_ENABLED: 0
       XDEBUG_CONFIG: remote_host=10.254.254.254
       PHP_IDE_CONFIG: "serverName=phpstorm_localhost_behat"
-      PHP_XDEBUG_DEFAULT_ENABLE: 0
       PHP_XDEBUG_IDE_KEY: PHPSTORM
       PHP_XDEBUG_REMOTE_HOST: 10.254.254.254
     ports:
