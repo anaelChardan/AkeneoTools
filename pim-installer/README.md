@@ -13,13 +13,15 @@ Available installations :
 To make it works: (must be enhanced)
 
 ```bash
-    git clone https://github.com/anaelChardan/AkeneoPimDockerAutomatedInstaller.git
-    ln -s AkeneoPimDockerAutomatedInstaller/pim-installer/install_pim.bash ./
-    ln -s AkeneoPimDockerAutomatedInstaller/pim-installer/files ./
-    cp AkeneoPimDockerAutomatedInstaller/pim-installer/files/etc/parameters.bash.dist ./files/etc/parameters.bash
+    git clone https://github.com/anaelChardan/AkeneoTools.git
+    ln -s AkeneoTools/pim-installer/install_pim.bash ./
+    ln -s AkeneoTools/pim-installer/files ./
+    cp AkeneoTools/pim-installer/files/etc/parameters.bash.dist ./files/etc/parameters.bash
     vim ./files/etc/parameters.bash
     ./install_pim.bash (1.4|1.5|1.6|master) (ce|ee) (orm|odm) (php-5.6|php-7.0)
 ```
+
+The script will create two folder next to your script : backup and installed_pims
 
 This has been tested on MacOS Sierra only
 

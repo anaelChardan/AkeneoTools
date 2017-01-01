@@ -1,6 +1,12 @@
 #!/bin/bash
 
-basePath="/Users/Ananas/Documents/Workspace/Akeneo/PIM"
+# FILES ON MOBY VM (perhaps the same than your host)
+# SHOULD FINISH BY installed_pims (because will be created on your host)
+pimsPath="/Workspace/Akeneo/PIM/installed_pims"
+composerPath="/Workspace/Tooling/.composer"
+behatScreenshots="/Workspace/Akeneo/PIM/backup/tmp_behat/screenshots"
+
+#Github and docker
 dockerComposeFileName="docker-compose-not-commitable.yml"
 communityRepo="git@github.com:akeneo/pim-community-dev.git"
 enterpriseRepo="PUT_YOUR_OWN_HERE"

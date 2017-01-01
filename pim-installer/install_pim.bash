@@ -9,7 +9,9 @@ currentAbsolutePath=`pwd`
 
 dockerFilesPath="${currentAbsolutePath}/files/config/docker/"
 pimFilesPath="${currentAbsolutePath}/files/config/pim/"
-
+backupPath="${currentAbsolutePath}/backup/"
+installedPimsPath="${currentAbsolutePath}/installed_pims"
+behatScreenshotsPath="${backupPath}/tmp_behat/screenshots"
 
 ####### WILL BE UPDATED
 folderName=""
@@ -31,7 +33,7 @@ function showUsageAndQuit {
 
 function buildFolderName {
     folderName="${pimversion}_${pimedition}_${pimstorage}_${pimengine}"
-    appFolder=${currentAbsolutePath}/${folderName}
+    appFolder=${installedPimsPath}/${folderName}
     dockerComposePath="$appFolder/$dockerComposeFileName"
 }
 
@@ -62,30 +64,38 @@ function setupMongo {
 }
 
 function cloneRightVersion {
+
+# PRE-NEED STEP
+    mkdir -p ${backupPath}
+    mkdir -p ${installedPimsPath}
+    mkdir -p ${behatScreenshotsPath}
+
+    cd ${backupPath}
+
     if [ ${pimedition} == "ce" ]; then
         if [ ! -d "pim-community-dev" ]; then
             echo "############# Clone the PIM Community as cache"
             git clone ${communityRepo}
         fi
 
-        cd pim-community-dev
+        cd ${backupPath}/pim-community-dev
         git pull
         git fetch --prune
-        cd ${currentAbsolutePath}
-        cp -R pim-community-dev ${folderName}
+        cd ${installedPimsPath}
+        cp -R ${backupPath}/pim-community-dev ${folderName}
     else
         if [ ! -d "pim-enterprise-dev" ]; then
             echo "############# Clone the PIM Enterprise as cache"
             git clone ${enterpriseRepo}
         fi
-        cd pim-enterprise-dev
+        cd ${backupPath}pim-enterprise-dev
         git pull
         git fetch --prune
-        cd ${currentAbsolutePath}
-        cp -R pim-enterprise-dev ${folderName}
+        cd ${installedPimsPath}
+        cp -R ${backupPath}/pim-enterprise-dev ${folderName}
     fi
 
-    cd ${currentAbsolutePath}/${folderName}
+    cd ${installedPimsPath}/${folderName}
     git checkout ${pimversion}
     git pull
 }
@@ -162,6 +172,8 @@ function processFiles {
     setupPorts
 
     sedReplaceMac /paths ${pimsPath}/${folderName} ${dockerComposePath}
+    sedReplaceMac /composer_path ${composerPath} ${dockerComposePath}
+    sedReplaceMac /behat_screenshots ${behatScreenshots} ${dockerComposePath}
 
     sedReplaceMac akeneo_port ${akeneoPort} ${dockerComposePath}
     sedReplaceMac akeneo_behat_port ${akeneoBehatPort} ${dockerComposePath}
@@ -171,6 +183,7 @@ function processFiles {
 
     if [ ${pimedition} == "ee" ]; then
         sedReplaceMac PimInstallerBundle:minimal PimEnterpriseInstallerBundle:minimal ${appFolder}/app/config/parameters_test.yml
+        sedReplaceMac Context\FeatureContext Context\EnterpriseFeatureContext ${appFolder}/behat.yml
     fi
 
     if [ ${pimstorage} == "odm" ]; then

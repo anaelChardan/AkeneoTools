@@ -16,7 +16,7 @@ services:
       - 'akeneo_port:80'
     volumes:
       - /paths:/home/docker/pim
-      - /Workspace/Tooling/.composer:/home/docker/.composer
+      - /composer_path:/home/docker/.composer
     working_dir: /home/docker/pim
     networks:
       - akeneo
@@ -38,8 +38,8 @@ services:
       - 'akeneo_behat_port:80'
     volumes:
       - /paths:/home/docker/pim
-      - /Workspace/Tooling/.composer:/home/docker/.composer
-      - /Workspace/Akeneo/PIM/tmp_behat/screenshots:/tmp/behat/screenshots
+      - /composer_path:/home/docker/.composer
+      - /behat_screenshots:/tmp/behat/screenshots
     working_dir: /home/docker/pim
     networks:
       - behat
