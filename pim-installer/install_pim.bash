@@ -174,6 +174,7 @@ function processFiles {
     sedReplaceMac /paths ${pimsPath}/${folderName} ${dockerComposePath}
     sedReplaceMac /composer_path ${composerPath} ${dockerComposePath}
     sedReplaceMac /behat_screenshots ${behatScreenshots} ${dockerComposePath}
+    sedReplaceMac php-version ${pimengine} ${dockerComposePath}
 
     sedReplaceMac akeneo_port ${akeneoPort} ${dockerComposePath}
     sedReplaceMac akeneo_behat_port ${akeneoBehatPort} ${dockerComposePath}
@@ -182,7 +183,7 @@ function processFiles {
     sedReplaceMac phpstorm_localhost_behat localhost_behat_${folderName} ${dockerComposePath}
 
     if [ ${pimedition} == "ee" ]; then
-        sedReplaceMac PimInstallerBundle:minimal PimEnterpriseInstallerBundle:minimal ${appFolder}/app/config/parameters_test.yml
+        sedReplaceMac PimInstallerpBundle:minimal PimEnterpriseInstallerBundle:minimal ${appFolder}/app/config/parameters_test.yml
         sedReplaceMac Context\FeatureContext Context\EnterpriseFeatureContext ${appFolder}/behat.yml
     fi
 

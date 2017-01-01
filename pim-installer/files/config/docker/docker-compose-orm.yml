@@ -2,7 +2,7 @@ version: '2'
 
 services:
   akeneo:
-    image: carcel/akeneo:php-5.6
+    image: carcel/akeneo:php-version
     depends_on:
       - mysql
     environment:
@@ -21,7 +21,7 @@ services:
       - akeneo
 
   akeneo-behat:
-    image: carcel/akeneo-behat:php-5.6
+    image: carcel/akeneo-behat:php-version
     depends_on:
       - mysql-behat
       - selenium
