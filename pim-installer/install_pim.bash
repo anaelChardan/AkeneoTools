@@ -27,7 +27,7 @@ seleniumPort=""
 ceBranch=""
 
 function showUsageAndQuit {
-   echo "Usage: ./install_pim.bash (1.4|1.5|1.6|master) (ce|ee) (orm|odm) (php-5.6|php-7.0) (ce-branch for ee)"
+   echo "Usage: ./install_pim.bash (1.4|1.5|1.6|1.7|master) (ce|ee) (orm|odm) (php-5.6|php-7.0) (ce-branch for ee)"
    exit 1
 }
 
@@ -148,6 +148,11 @@ function setupPorts {
          akeneoPort="${akeneoPort}${oneSixPort}"
          akeneoBehatPort="${akeneoBehatPort}${oneSixPort}"
          seleniumPort="${seleniumPort}${oneSixPort}"
+    elif [ $pimversion == "1.7" ]
+    then
+         akeneoPort="${akeneoPort}${oneSevenPort}"
+         akeneoBehatPort="${akeneoBehatPort}${oneSevenPort}"
+         seleniumPort="${seleniumPort}${oneSevenPort}"
     elif [ $pimversion == "master" ]
     then
          akeneoPort="${akeneoPort}${masterPort}"
@@ -239,7 +244,7 @@ if [ $# -lt 4 ]; then
    showUsageAndQuit
 fi
 
-if [ $1 != "1.4" ] && [ $1 != "1.5" ] && [ $1 != "1.6" ] && [ $1 != "master" ]; then
+if [ $1 != "1.4" ] && [ $1 != "1.5" ] && [ $1 != "1.6" ] && [ $1 != "1.7" ] && [ $1 != "master" ]; then
      echo "############# Not supported version"
      showUsageAndQuit
 fi

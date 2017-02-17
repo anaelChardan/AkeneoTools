@@ -14,10 +14,11 @@ services:
       PHP_XDEBUG_REMOTE_HOST: 10.254.254.254
     ports:
       - 'akeneo_port:80'
+    user: docker
     volumes:
-      - /paths:/home/docker/pim
+      - /paths:/home/docker/symfony
       - /composer_path:/home/docker/.composer
-    working_dir: /home/docker/pim
+    working_dir: /home/docker/symfony
     networks:
       - akeneo
 
@@ -28,7 +29,7 @@ services:
       - mongodb-behat
       - selenium
     environment:
-      BEHAT_TMPDIR: /home/docker/pim/app/cache/tmp
+      BEHAT_TMPDIR: /home/docker/symfony/app/cache/tmp
       PHP_XDEBUG_ENABLED: 0
       XDEBUG_CONFIG: remote_host=10.254.254.254
       PHP_IDE_CONFIG: "serverName=phpstorm_localhost_behat"
@@ -36,11 +37,12 @@ services:
       PHP_XDEBUG_REMOTE_HOST: 10.254.254.254
     ports:
       - 'akeneo_behat_port:80'
+    user: docker
     volumes:
-      - /paths:/home/docker/pim
+      - /paths:/home/docker/symfony
       - /composer_path:/home/docker/.composer
       - /behat_screenshots:/tmp/behat/screenshots
-    working_dir: /home/docker/pim
+    working_dir: /home/docker/symfony
     networks:
       - behat
 
@@ -49,7 +51,7 @@ services:
     ports:
       - 'akeneo_selenium_port:5900'
     volumes:
-      - /paths:/home/docker/pim
+      - /paths:/home/docker/symfony
     networks:
       - behat
 
