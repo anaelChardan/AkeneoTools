@@ -6,7 +6,7 @@ This repository allows you to install easily 32 differents setup of the [Akeneo 
 
 Available installations :
 - CE / EE editions (to make the EE working you should have the rights access)
-- 1.4 | 1.5 | 1.6 | master versions
+- 1.4 | 1.5 | 1.6 | 1.7 | master versions
 - orm | odm storage
 - php-5.6 | php-7.0 engine
 
