@@ -188,7 +188,7 @@ function processFiles {
     sedReplaceMac phpstorm_localhost_behat localhost_behat_${folderName} ${dockerComposePath}
 
     if [ ${pimedition} == "ee" ]; then
-        sedReplaceMac PimInstallerpBundle:minimal PimEnterpriseInstallerBundle:minimal ${appFolder}/app/config/parameters_test.yml
+        sedReplaceMac PimInstallerBundle:minimal PimEnterpriseInstallerBundle:minimal ${appFolder}/app/config/parameters_test.yml
         sedReplaceMac Context\FeatureContext Context\EnterpriseFeatureContext ${appFolder}/behat.yml
     fi
 
