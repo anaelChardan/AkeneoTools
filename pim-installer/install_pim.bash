@@ -25,6 +25,7 @@ akeneoPort=""
 akeneoBehatPort=""
 seleniumPort=""
 ceBranch=""
+dockerSyncPath=""
 
 function showUsageAndQuit {
    echo "Usage: ./install_pim.bash (1.4|1.5|1.6|1.7|master) (ce|ee) (orm|odm) (php-5.6|php-7.0) (ce-branch for ee)"
@@ -35,6 +36,7 @@ function buildFolderName {
     folderName="${pimversion}_${pimedition}_${pimstorage}_${pimengine}"
     appFolder=${installedPimsPath}/${folderName}
     dockerComposePath="$appFolder/$dockerComposeFileName"
+    dockerSyncPath="$appFolder/docker-sync.yml"
 }
 
 function sedReplaceMac {
@@ -173,14 +175,18 @@ function processFiles {
     cp ${pimFilesPath}app_dev.php ${appFolder}/web/
 
     cp ${dockerFilesPath}docker-compose-${pimstorage}.yml ${dockerComposePath}
+    cp ${dockerFilesPath}docker-sync.yml ${appFolder}/
 
     setupPorts
 
-    sedReplaceMac /paths ${pimsPath}/${folderName} ${dockerComposePath}
-    sedReplaceMac /composer_path ${composerPath} ${dockerComposePath}
-    sedReplaceMac /behat_screenshots ${behatScreenshots} ${dockerComposePath}
-    sedReplaceMac php-version ${pimengine} ${dockerComposePath}
+    sedReplaceMac /paths ${pimsPath}/${folderName} ${dockerSyncPath}
+    sedReplaceMac /composer_path ${composerPath} ${dockerSyncPath}
+    sedReplaceMac /behat_screenshots ${behatScreenshots} ${dockerSyncPath}
+    sedReplaceMac applicationName ${folderName} ${dockerSyncPath}
+    sedReplaceMac docker_compose_file_name ${dockerComposeFileName} ${dockerSyncPath}
 
+    sedReplaceMac php-version ${pimengine} ${dockerComposePath}
+    sedReplaceMac applicationName ${folderName} ${dockerComposePath}
     sedReplaceMac akeneo_port ${akeneoPort} ${dockerComposePath}
     sedReplaceMac akeneo_behat_port ${akeneoBehatPort} ${dockerComposePath}
     sedReplaceMac akeneo_selenium_port ${seleniumPort} ${dockerComposePath}
@@ -204,12 +210,21 @@ function processInstall {
         setupComposerJson composer.json
     fi
 
+    echo "############# Start the Docker Sync Stack"
+    docker-sync-daemon start
+    echo "############# Wait 5 seconds"
+    sleep 5
     echo "############# Construct your application using docker"
     docker-compose -f ${dockerComposeFileName} up -d --build
     echo "############# Wait 5 seconds"
     sleep 5
+    echo "############# Setup rights"
+    docker-compose -f ${dockerComposeFileName} exec akeneo sudo chown -R docker:docker /home/docker/symfony
+    docker-compose -f ${dockerComposeFileName} exec akeneo sudo chown -R docker:docker /home/docker/.composer
+    docker-compose -f ${dockerComposeFileName} exec akeneo-behat sudo chown -R docker:docker /home/docker/.composer
+    docker-compose -f ${dockerComposeFileName} exec akeneo-behat sudo chown -R docker:docker /tmp/behat/screenshots
+    docker-compose -f ${dockerComposeFileName} exec selenium sudo chown -R docker:docker /home/docker/.composer
     echo "############# Install your vendors"
-
     docker-compose -f ${dockerComposeFileName} exec akeneo php -d memory_limit=-1 /usr/local/bin/composer update --ignore-platform-reqs --optimize-autoloader --prefer-dist
 
     echo "############# Install your application for test usage (behat)"
