@@ -28,6 +28,10 @@ The script will create two folder next to your script : backup and installed_pim
 
 This has been tested on MacOS Sierra only
 
+## Performance needed, you should use [docker-sync](https://github.com/EugenMayer/docker-sync) or [docker-NFS](https://github.com/IFSight/d4m-nfs) at least
+
+For docker-sync, you can use this [branch](https://github.com/anaelChardan/AkeneoTools/tree/akeneo-tools-docker-sync) 
+
 ## Bonus
 
 It also setup XDebug to work with Docker Native for Mac and PHPStorm
