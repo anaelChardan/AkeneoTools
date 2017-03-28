@@ -15,8 +15,8 @@ services:
       - 'akeneo_port:80'
     user: docker
     volumes:
-      - /paths:/home/docker/symfony
-      - /composer_path:/home/docker/.composer
+      - applicationName-application-sync:/home/docker/symfony:rw
+      - applicationName-composer_cache-sync:/home/docker/.composer:rw
     working_dir: /home/docker/symfony
     networks:
       - akeneo
@@ -37,9 +37,9 @@ services:
       - 'akeneo_behat_port:80'
     user: docker
     volumes:
-      - /paths:/home/docker/symfony
-      - /composer_path:/home/docker/.composer
-      - /behat_screenshots:/tmp/behat/screenshots
+      - applicationName-application-sync:/home/docker/symfony:rw
+      - applicationName-composer_cache-sync:/home/docker/.composer:rw
+      - applicationName-behat_screenshots-sync:/tmp/behat/screenshots:rw
     working_dir: /home/docker/symfony
     networks:
       - behat
@@ -49,7 +49,7 @@ services:
     ports:
       - 'akeneo_selenium_port:5900'
     volumes:
-      - /paths:/home/docker/symfony
+      - applicationName-application-sync:/home/docker/symfony:rw
     networks:
       - behat
 
@@ -76,3 +76,11 @@ services:
 networks:
   akeneo: ~
   behat: ~
+
+volumes:
+  applicationName-application-sync:
+    external: true
+  applicationName-composer_cache-sync:
+    external: true
+  applicationName-behat_screenshots-sync:
+    external: true

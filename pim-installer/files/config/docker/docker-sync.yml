@@ -1,0 +1,21 @@
+version: "2"
+
+options:
+    compose-file-path: './docker_compose_file_name'
+syncs:
+    applicationName-application-sync:
+        src: '/paths'
+        dest: '/home/docker/symfony'
+        sync_strategy: 'unison'
+        sync_args: '-prefer newer -copyonconflict'
+        sync_userid: 1000
+    applicationName-composer_cache-sync:
+        src: '/composer_path'
+        dest: '/home/docker/.composer'
+        sync_strategy: 'unison'
+        sync_userid: 1000
+    applicationName-behat_screenshots-sync:
+        src: '/behat_screenshots'
+        dest: '/tmp/behat/screenshots'
+        sync_strategy: 'unison'
+        sync_userid: 1000
